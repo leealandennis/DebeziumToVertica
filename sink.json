@@ -1,0 +1,20 @@
+{
+   "name":"VerticaSinkConnector",
+   "config":{
+      "tasks.max":"1",
+      "topics":"customers",
+      "connector.class":"io.confluent.vertica.VerticaSinkConnector",
+      "vertica.database":"inventory",
+      "vertica.host":"vertica",
+      "vertica.port":"5433",
+      "vertica.username":"dbadmin",
+      "vertica.password":"vertica",
+      "auto.create":"true",
+      "confluent.topic.bootstrap.servers":"kafka:9092",
+      "confluent.topic.replication.factor":"1",
+      "transforms":"unwrap",
+      "transforms.unwrap.type":"io.debezium.transforms.ExtractNewRecordState",
+      "table.name.format":"inventory.${topic}",
+      "auto.evolve":"true"
+   }
+}

@@ -1,0 +1,55 @@
+version: '3'
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: debezium/zookeeper:1.6
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    container_name: kafka
+    image: debezium/kafka:1.6
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  mysql:
+    container_name: mysql
+    image: debezium/example-mysql:1.6
+    ports:
+     - 3306:3306
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw 
+  vertica:
+    container_name: vertica
+    image: jbfavre/vertica:9.x
+    ports:
+     - "5433:5433"
+    environment:
+     - APP_DB_USER=verticauser
+     - DATABASE_PASSWORD=vertica
+     - DATABASE_NAME=inventory
+  connect:
+    container_name: connect
+    image: debezium/connect-vertica:1.6
+    build: .
+    ports:
+     - 8083:8083
+     - 5005:5005
+    links:
+     - kafka
+     - mysql
+     - vertica
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+    volumes:
+      - ./libs/confluentinc-kafka-connect-vertica-1.2.5:/kafka/connect/confluentinc-kafka-connect-vertica-1.2.5
